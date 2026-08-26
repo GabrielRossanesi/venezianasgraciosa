@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const whatsappFloat = document.querySelector('.whatsapp-float');
-  const floatQuietZones = document.querySelectorAll('.hero, .problems, .process, .gallery, .faq, .final-cta, .site-footer');
+  const floatQuietZones = document.querySelectorAll('.hero, .service-feature, .service-residential, .problems, .process, .gallery, .faq, .final-cta, .site-footer');
   if (whatsappFloat && 'IntersectionObserver' in window) {
     const visibleQuietZones = new Set();
     const floatObserver = new IntersectionObserver((entries) => {
