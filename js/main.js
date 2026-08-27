@@ -90,27 +90,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const lightbox = document.querySelector('.lightbox');
   const lightboxImage = lightbox?.querySelector('img');
+  const lightboxVideo = lightbox?.querySelector('video');
   const lightboxCaption = lightbox?.querySelector('figcaption');
   const lightboxClose = lightbox?.querySelector('.lightbox-close');
   let lastFocused = null;
+
+  const resetLightboxMedia = () => {
+    if (lightboxImage) {
+      lightboxImage.hidden = true;
+      lightboxImage.src = '';
+      lightboxImage.alt = '';
+    }
+    if (lightboxVideo) {
+      lightboxVideo.pause();
+      lightboxVideo.hidden = true;
+      lightboxVideo.removeAttribute('src');
+      lightboxVideo.removeAttribute('poster');
+      lightboxVideo.removeAttribute('aria-label');
+      lightboxVideo.load();
+    }
+  };
 
   const closeLightbox = () => {
     if (!lightbox) return;
     lightbox.classList.remove('open');
     lightbox.setAttribute('aria-hidden', 'true');
     body.classList.remove('lightbox-open');
-    if (lightboxImage) lightboxImage.src = '';
+    resetLightboxMedia();
     if (lastFocused instanceof HTMLElement) lastFocused.focus();
   };
 
-  document.querySelectorAll('.gallery-item').forEach((item) => {
+  document.querySelectorAll('.gallery-item, .video-trigger').forEach((item) => {
     item.addEventListener('click', () => {
-      if (!lightbox || !lightboxImage) return;
+      if (!lightbox) return;
       lastFocused = item;
-      const source = item.getAttribute('data-image') || '';
       const caption = item.getAttribute('data-caption') || '';
-      lightboxImage.src = source;
-      lightboxImage.alt = caption;
+      const videoSource = item.getAttribute('data-video');
+      const imageSource = item.getAttribute('data-image');
+      resetLightboxMedia();
+
+      if (videoSource && lightboxVideo) {
+        lightboxVideo.hidden = false;
+        lightboxVideo.src = videoSource;
+        lightboxVideo.poster = item.getAttribute('data-poster') || '';
+        lightboxVideo.setAttribute('aria-label', caption);
+        lightboxVideo.load();
+      } else if (imageSource && lightboxImage) {
+        lightboxImage.hidden = false;
+        lightboxImage.src = imageSource;
+        lightboxImage.alt = caption;
+      }
+
       if (lightboxCaption) lightboxCaption.textContent = caption;
       lightbox.classList.add('open');
       lightbox.setAttribute('aria-hidden', 'false');
@@ -125,6 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && lightbox?.classList.contains('open')) closeLightbox();
+
+    if (event.key === 'Tab' && lightbox?.classList.contains('open')) {
+      const focusable = [lightboxClose, lightboxVideo && !lightboxVideo.hidden ? lightboxVideo : null].filter(Boolean);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
   });
 
   document.querySelectorAll('.track-whatsapp').forEach((link) => {
@@ -138,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const whatsappFloat = document.querySelector('.whatsapp-float');
-  const floatQuietZones = document.querySelectorAll('.hero, .service-feature, .service-residential, .problems, .process, .gallery, .faq, .final-cta, .site-footer');
+  const floatQuietZones = document.querySelectorAll('.hero, .service-feature, .service-residential, .problems, .process, .video-proof, .gallery, .faq, .final-cta, .site-footer');
   if (whatsappFloat && 'IntersectionObserver' in window) {
     const visibleQuietZones = new Set();
     const floatObserver = new IntersectionObserver((entries) => {
