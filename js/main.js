@@ -180,20 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const whatsappFloat = document.querySelector('.whatsapp-float');
-  const floatQuietZones = document.querySelectorAll('.hero, .service-feature, .service-residential, .problems, .process, .video-proof, .gallery, .faq, .final-cta, .site-footer');
-  if (whatsappFloat && 'IntersectionObserver' in window) {
-    const visibleQuietZones = new Set();
-    const floatObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) visibleQuietZones.add(entry.target);
-        else visibleQuietZones.delete(entry.target);
-      });
-      whatsappFloat.classList.toggle('context-hidden', visibleQuietZones.size > 0);
-    }, { threshold: 0.05 });
-    floatQuietZones.forEach((section) => floatObserver.observe(section));
-  }
-
   const year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
 });
